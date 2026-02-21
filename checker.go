@@ -20,11 +20,8 @@ func checkAll(urls []string, workerCount int) []Result {
 
 	// запуск пула воркеров
 	for i := 0; i < workerCount; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			client := &http.Client{Timeout: 10 * time.Second}
-			
 			for url := range jobs {
 				start := time.Now()
 				resp, err := client.Get(url)
@@ -38,7 +35,8 @@ func checkAll(urls []string, workerCount int) []Result {
 				}
 				resultsChan <- res
 			}
-		}()
+		})
+		
 	}
 
 	// раздача задач
